@@ -1,0 +1,44 @@
+﻿{
+	"id": "com.tranapps.lander",
+	"version": "2.0",
+	"name": "Astro Lander Saga",
+	"description": "Astro Lander Saga",
+	"author": "tranapps",
+	"email": "support@tranapps.com",
+	"website": "tranapps.com",
+	"fullscreen": "true",
+	"useragent": null,
+	"orientation": "portrait",
+	"icons": [{
+		"src": "www/icon-256.png",
+		"width": 256,
+		"height": 256,
+		"density": "xxxhdpi"
+	}, {
+		"src": "www/icon-128.png",
+		"width": 128,
+		"height": 128,
+		"density": "xhdpi"
+	}],
+	"plugins": [
+		{ "id": "cordova-custom-config", "version": null },
+		{ "id": "cordova-plugin-file", "version": null },
+		{ "id": "cordova-plugin-inappbrowser", "version": null },
+		{ "id": "cordova-plugin-statusbar", "version": null },
+		{ "id": "cordova-plugin-whitelist", "version": null },
+		{ "id": "cordova-plugin-wkwebview-engine", "version": null },
+		{ "id": "https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin#5.0.10", "version": null },
+		{ "id": "https://github.com/cranberrygame/cordova-plugin-ad-admob", "version": null },
+		{ "id": "https://github.com/cranberrygame/cordova-plugin-ad-vungle", "version": null },
+		{ "id": "https://github.com/cranberrygame/cordova-plugin-game --variable APP_ID='YOUR_GOOGLE_PLAY_GAME_APP_ID'", "version": null }
+	],
+	"android": {
+		"min": 21,
+		"target": 26,
+		"plugins": []
+	},
+	"ios": {
+		"target": "10.0",
+		"plugins": []
+	}
+}
