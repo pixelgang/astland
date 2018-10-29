@@ -1,6 +1,6 @@
 ﻿{
 	"id": "com.tranapps.lander",
-	"version": "2.1",
+	"version": "3.0",
 	"name": "Astro Lander Saga",
 	"description": "Astro Lander Saga",
 	"author": "tranapps",
@@ -26,12 +26,10 @@
 		{ "id": "cordova-plugin-inappbrowser", "version": null },
 		{ "id": "cordova-plugin-statusbar", "version": null },
 		{ "id": "cordova-plugin-whitelist", "version": null },
-		{ "id": "cordova-plugin-wkwebview-engine", "version": null },
-		{ "id": "https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin#5.0.10", "version": null },
-		{ "id": "https://github.com/cranberrygame/cordova-plugin-ad-admob", "version": null }
+		{ "id": "cordova-plugin-wkwebview-engine", "version": null }
 	],
 	"android": {
-		"min": 21,
+		"min": 23,
 		"target": 26,
 		"plugins": []
 	},

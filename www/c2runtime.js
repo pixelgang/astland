@@ -19112,6 +19112,472 @@ cr.plugins_.Browser = function(runtime)
 }());
 ;
 ;
+document.addEventListener("deviceready", function() {
+    if(typeof self["Enhance"] === "undefined") return;
+    self["Enhance"]["setCurrencyReceivedCallback"](function(amount) {
+        window.enhancePluginInstance.lastCurrencyAmount = amount;
+        window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onCurrencyGranted, window.enhancePluginInstance);
+    });
+}, false);
+cr.plugins_.EnhanceIncConstructPlugin = function(runtime)
+{
+    this.runtime = runtime;
+    window.enhancePluginRuntime = runtime;
+};
+(function ()
+{
+    var pluginProto = cr.plugins_.EnhanceIncConstructPlugin.prototype;
+    pluginProto.Type = function(plugin)
+    {
+        this.plugin = plugin;
+        this.runtime = plugin.runtime;
+    };
+    var typeProto = pluginProto.Type.prototype;
+    typeProto.onCreate = function()
+    {
+    };
+    pluginProto.Instance = function(type)
+    {
+        this.type = type;
+        this.runtime = type.runtime;
+        window.enhancePluginInstance = this;
+        this.warningMsg = "Enhance functions won't work until you export your game for Cordova."
+        this.optInRequired = false;
+        this.lastRewardValue = -1;
+        this.lastRewardType = "none";
+        this.bannerShown = false;
+        this.lastCurrencyAmount = -1;
+        this.hasLocalNotificationPermission = false;
+        this.iapSupported = false;
+        this.lastSKU = "";
+        this.lastDisplayPrice = "";
+        this.lastOwnedItemCount = "";
+        this.lastDisplayTitle = "";
+        this.lastDisplayDescription = "";
+        if(typeof self["Enhance"] !== 'undefined') {
+            self["Enhance"]["purchases"]["isSupported"](function(result) {
+                window.enhancePluginInstance.iapSupported = result;
+            });
+        }
+    };
+    var instanceProto = pluginProto.Instance.prototype;
+    instanceProto.onCreate = function()
+    {
+    };
+    instanceProto.onDestroy = function ()
+    {
+    };
+    instanceProto.saveToJSON = function ()
+    {
+        return {
+        };
+    };
+    instanceProto.loadFromJSON = function (o)
+    {
+    };
+    instanceProto.draw = function(ctx)
+    {
+    };
+    instanceProto.drawGL = function (glw)
+    {
+    };
+    function Cnds() {};
+    /*Cnds.prototype.MyCondition = function (myparam)
+    {
+        return myparam >= 0;
+    };*/
+    Cnds.prototype.onInterstitialAdSuccess = function() { return true; };
+    Cnds.prototype.onInterstitialAdFailed = function() { return true; };
+    Cnds.prototype.onRewardedAdSuccess = function() { return true; };
+    Cnds.prototype.onRewardedAdFailed = function() { return true; };
+    Cnds.prototype.onRewardGranted = function() { return true; };
+    Cnds.prototype.onRewardDeclined = function() { return true; };
+    Cnds.prototype.onRewardUnavailable = function() { return true; };
+    Cnds.prototype.onBannerAdSuccess = function() { return true; };
+    Cnds.prototype.onBannerAdFailed = function() { return true; };
+    Cnds.prototype.isBannerAdShown = function() { return this.bannerShown; };
+    Cnds.prototype.onOfferwallSuccess = function() { return true; };
+    Cnds.prototype.onOfferwallFailed = function() { return true; };
+    Cnds.prototype.onCurrencyGranted = function() { return true; };
+    Cnds.prototype.onSpecialOfferSuccess = function() { return true; };
+    Cnds.prototype.onSpecialOfferFailed = function() { return true; };
+    Cnds.prototype.onLocalNotificationPermissionGranted = function() { return true; };
+    Cnds.prototype.onLocalNotificationPermissionRejected = function() { return true; };
+    Cnds.prototype.isLocalNotificationPermissionGranted = function() { return this.hasLocalNotificationPermission; };
+    Cnds.prototype.isIAPSupported = function () { return this.iapSupported; };
+    Cnds.prototype.onPurchaseSuccess = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onPurchaseFailed = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onDisplayPriceReceived = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onItemIsOwned = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onItemIsNotOwned = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onOwnedItemCountReceived = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onConsumptionSuccess = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onConsumptionFailed = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onRestoreSuccess = function() { return true; };
+    Cnds.prototype.onRestoreFailed = function() { return true; };
+    Cnds.prototype.onDisplayTitleReceived = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onDisplayDescriptionReceived = function(skuStr) { return cr.equals_nocase(skuStr, this.lastSKU); };
+    Cnds.prototype.onIAPStatusReceived = function() { return true; };
+    Cnds.prototype.onServiceOptInRequirement = function() { return true; };
+    Cnds.prototype.isServiceOptInRequired = function() { return this.optInRequired; };
+    Cnds.prototype.onDialogComplete = function() { return true; };
+    pluginProto.cnds = new Cnds();
+    function Acts() {};
+    /*Acts.prototype.MyAction = function (myparam)
+    {
+        alert(myparam);
+    };*/
+    /* Ads */
+    Acts.prototype.showInterstitialAd = function(placementStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        if(placementStr == "") placementStr = "default";
+        window.enhancePluginInstance.lastInterstitialPlacementStr = placementStr;
+        self["Enhance"]["isInterstitialReady"](function(result) {
+            if(result) {
+                self["Enhance"]["showInterstitialAd"](window.enhancePluginInstance.lastInterstitialPlacementStr);
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onInterstitialAdSuccess, window.enhancePluginInstance);
+            } else {
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onInterstitialAdFailed, window.enhancePluginInstance);
+            }
+        }, placementStr);
+    };
+    Acts.prototype.showRewardedAd = function(placementID) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var placementArr = ["neutral", "success", "helper"];
+        var placementStr = placementArr[placementID];
+        window.enhancePluginInstance.lastRewardedPlacementStr = placementStr;
+        var grantedCallback = function(value, type) {
+            window.enhancePluginInstance.lastRewardType = type;
+            window.enhancePluginInstance.lastRewardValue = value;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onRewardGranted, window.enhancePluginInstance);
+        };
+        var declinedCallback = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onRewardDeclined, window.enhancePluginInstance);
+        };
+        var unavailableCallback = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onRewardUnavailable, window.enhancePluginInstance);
+        };
+        self["Enhance"]["isRewardedAdReady"](function(result) {
+            if(result) {
+                self["Enhance"]["showRewardedAd"](grantedCallback, declinedCallback, unavailableCallback, window.enhancePluginInstance.lastRewardedPlacementStr);
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onRewardedAdSuccess, window.enhancePluginInstance);
+            } else {
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onRewardedAdFailed, window.enhancePluginInstance);
+            }
+        }, placementStr);
+    };
+    Acts.prototype.showBannerAd = function(positionID, placementStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var positionArr = ["top", "bottom"];
+        var positionStr = positionArr[positionID];
+        if(placementStr == "") placementStr = "default";
+        window.enhancePluginInstance.lastBannerPositionStr = positionStr;
+        window.enhancePluginInstance.lastBannerPlacementStr = placementStr;
+        self["Enhance"]["isBannerAdReady"](function(result) {
+            if(result) {
+                window.enhancePluginInstance.bannerShown = true;
+                self["Enhance"]["showBannerAdWithPosition"](window.enhancePluginInstance.lastBannerPositionStr, window.enhancePluginInstance.lastBannerPlacementStr);
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onBannerAdSuccess, window.enhancePluginInstance);
+            } else {
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onBannerAdFailed, window.enhancePluginInstance);
+            }
+        }, placementStr);
+    };
+    Acts.prototype.hideBannerAd = function() {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        window.enhancePluginInstance.bannerShown = false;
+        self["Enhance"]["hideBannerAd"]();
+    };
+    Acts.prototype.showOfferwall = function(placementStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        if(placementStr == "") placementStr = "default";
+        window.enhancePluginInstance.lastOfferwallPlacementStr = placementStr;
+        self["Enhance"]["isOfferwallReady"](function(result) {
+            if(result) {
+                self["Enhance"]["showOfferwall"](window.enhancePluginInstance.lastOfferwallPlacementStr);
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onOfferwallSuccess, window.enhancePluginInstance);
+            } else {
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onOfferwallFailed, window.enhancePluginInstance);
+            }
+        }, placementStr);
+    };
+    Acts.prototype.showSpecialOffer = function(placementStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        if(placementStr == "") placementStr = "default";
+        window.enhancePluginInstance.lastSpecialOfferPlacementStr = placementStr;
+        self["Enhance"]["isSpecialOfferReady"](function(result) {
+            if(result) {
+                self["Enhance"]["showSpecialOffer"](window.enhancePluginInstance.lastSpecialOfferPlacementStr);
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onSpecialOfferSuccess, window.enhancePluginInstance);
+            } else {
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onSpecialOfferFailed, window.enhancePluginInstance);
+            }
+        }, placementStr);
+    };
+    /* Local Notifications */
+    Acts.prototype.requestLocalNotificationPermission = function() {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var permissionGranted = function() {
+            window.enhancePluginInstance.hasLocalNotificationPermission = true;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onLocalNotificationPermissionGranted, window.enhancePluginInstance);
+        };
+        var permissionRejected = function() {
+            window.enhancePluginInstance.hasLocalNotificationPermission = false;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onLocalNotificationPermissionRejected, window.enhancePluginInstance);
+        };
+        self["Enhance"]["requestLocalNotificationPermission"](permissionGranted, permissionRejected);
+    };
+    Acts.prototype.enableLocalNotification = function(titleStr, msgStr, delayInt) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        self["Enhance"]["enableLocalNotification"](titleStr, msgStr, delayInt);
+    };
+    Acts.prototype.disableLocalNotification = function() {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        self["Enhance"]["disableLocalNotification"]();
+    };
+    /* Analytics */
+    Acts.prototype.logSimpleEvent = function(eventNameStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        self["Enhance"]["logEvent"](eventNameStr);
+    };
+    Acts.prototype.logEvent = function(eventNameStr, eventParamKeyStr, eventParamValueStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        self["Enhance"]["logEvent"](eventNameStr, eventParamKeyStr, eventParamValueStr);
+    };
+    /* IAP */
+    Acts.prototype.attemptPurchase = function(skuStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var successCb = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onPurchaseSuccess, window.enhancePluginInstance);
+        };
+        var failedCb = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onPurchaseFailed, window.enhancePluginInstance);
+        };
+        this.lastSKU = skuStr;
+        self["Enhance"]["purchases"]["attemptPurchase"](skuStr, successCb, failedCb);
+    };
+    Acts.prototype.getDisplayPrice = function(skuStr, defaultStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function(resultStr) {
+            window.enhancePluginInstance.lastDisplayPrice = resultStr;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onDisplayPriceReceived, window.enhancePluginInstance);
+        };
+        this.lastSKU = skuStr;
+        self["Enhance"]["purchases"]["getDisplayPrice"](skuStr, defaultStr, resultCb);
+    };
+    Acts.prototype.checkIfItemIsOwned = function(skuStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function(result) {
+            if(result)
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onItemIsOwned, window.enhancePluginInstance);
+            else
+                window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onItemIsNotOwned, window.enhancePluginInstance);
+        };
+        this.lastSKU = skuStr;
+        self["Enhance"]["purchases"]["isItemOwned"](skuStr, resultCb);
+    };
+    Acts.prototype.getOwnedItemCount = function(skuStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function(resultInt) {
+            window.enhancePluginInstance.lastOwnedItemCount = resultInt;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onOwnedItemCountReceived, window.enhancePluginInstance);
+        };
+        this.lastSKU = skuStr;
+        self["Enhance"]["purchases"]["getOwnedItemCount"](skuStr, resultCb);
+    };
+    Acts.prototype.consumeProduct = function(skuStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var successCb = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onConsumptionSuccess, window.enhancePluginInstance);
+        };
+        var failedCb = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onConsumptionFailed, window.enhancePluginInstance);
+        };
+        this.lastSKU = skuStr;
+        self["Enhance"]["purchases"]["consume"](skuStr, successCb, failedCb);
+    };
+    Acts.prototype.manuallyRestorePurchases = function() {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var successCb = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onRestoreSuccess, window.enhancePluginInstance);
+        };
+        var failedCb = function() {
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onRestoreFailed, window.enhancePluginInstance);
+        };
+        self["Enhance"]["purchases"]["manuallyRestorePurchases"](successCb, failedCb);
+    };
+    Acts.prototype.getDisplayTitle = function(skuStr, defaultTitleStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function(resultStr) {
+            window.enhancePluginInstance.lastDisplayTitle = resultStr;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onDisplayTitleReceived, window.enhancePluginInstance);
+        };
+        this.lastSKU = skuStr;
+        self["Enhance"]["purchases"]["getDisplayTitle"](skuStr, defaultTitleStr, resultCb);
+    };
+    Acts.prototype.getDisplayDescription = function(skuStr, defaultDescStr) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function(resultStr) {
+            window.enhancePluginInstance.lastDisplayDescription = resultStr;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onDisplayDescriptionReceived, window.enhancePluginInstance);
+        };
+        this.lastSKU = skuStr;
+        self["Enhance"]["purchases"]["getDisplayDescription"](skuStr, defaultDescStr, resultCb);
+    };
+    Acts.prototype.checkIAPStatus = function() {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function(resultBool) {
+            window.enhancePluginInstance.iapSupported = resultBool;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onIAPStatusReceived, window.enhancePluginInstance);
+        };
+        self["Enhance"]["purchases"]["isSupported"](resultCb);
+    };
+    Acts.prototype.requiresDataConsentOptIn = function() {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function(resultBool) {
+            window.enhancePluginInstance.optInRequired = resultBool;
+            window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onServiceOptInRequirement, window.enhancePluginInstance);
+        };
+        self["Enhance"]["requiresDataConsentOptIn"](resultCb);
+    };
+    Acts.prototype.serviceTermsOptIn = function(sdksJson) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        if(typeof sdksJson === "string" && sdksJson.length > 0) {
+            self["Enhance"]["serviceTermsOptIn"](JSON.parse(sdksJson));
+        } else {
+            self["Enhance"]["serviceTermsOptIn"]();
+        }
+    };
+    Acts.prototype.showServiceOptInDialogs = function(sdksJson) {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        var resultCb = function() {
+             window.enhancePluginRuntime.trigger(cr.plugins_.EnhanceIncConstructPlugin.prototype.cnds.onDialogComplete, window.enhancePluginInstance);
+        };
+        if(typeof sdksJson === "string" && sdksJson.length > 0) {
+            self["Enhance"]["showServiceOptInDialogs"](JSON.parse(sdksJson), resultCb)
+        } else {
+            self["Enhance"]["showServiceOptInDialogs"](null, resultCb);
+        }
+    };
+    Acts.prototype.serviceTermsOptOut = function() {
+        if(typeof self["Enhance"] === "undefined") {
+            console.log(this.warningMsg);
+            return;
+        }
+        self["Enhance"]["serviceTermsOptOut"]();
+    };
+    pluginProto.acts = new Acts();
+    function Exps() {};
+    Exps.prototype.LastRewardType = function(ret) {
+        ret.set_string(this.lastRewardType);
+    };
+    Exps.prototype.LastRewardValue = function(ret) {
+        ret.set_int(this.lastRewardValue);
+    };
+    Exps.prototype.LastCurrencyAmount = function(ret) {
+        ret.set_int(this.lastCurrencyAmount);
+    };
+    Exps.prototype.LastDisplayPrice = function(ret) {
+        ret.set_string(this.lastDisplayPrice);
+    };
+    Exps.prototype.LastOwnedItemCount = function(ret) {
+        ret.set_int(this.lastOwnedItemCount);
+    };
+    Exps.prototype.RewardTypeItem = function(ret) {
+        ret.set_string(self["Enhance"]["RewardType"]["ITEM"]);
+    };
+    Exps.prototype.RewardTypeCoins = function(ret) {
+        ret.set_string(self["Enhance"]["RewardType"]["COINS"]);
+    };
+    Exps.prototype.REWARD_TYPE_ITEM = function(ret) {
+        ret.set_string(self["Enhance"]["RewardType"]["ITEM"]);
+    };
+    Exps.prototype.REWARD_TYPE_COINS = function(ret) {
+        ret.set_string(self["Enhance"]["RewardType"]["COINS"]);
+    };
+    Exps.prototype.LastDisplayTitle = function(ret) {
+        ret.set_string(this.lastDisplayTitle);
+    };
+    Exps.prototype.LastDisplayDescription = function(ret) {
+        ret.set_string(this.lastDisplayDescription);
+    };
+    /*Exps.prototype.MyExpression = function (ret)  // 'ret' must always be the first parameter - always return the expression's result through it!
+    {
+        ret.set_int(1337);              // return our value
+    };*/
+    pluginProto.exps = new Exps();
+}());
+;
+;
 cr.plugins_.Function = function(runtime)
 {
 	this.runtime = runtime;
@@ -23390,909 +23856,6 @@ cr.plugins_.Touch = function(runtime)
 }());
 ;
 ;
-/*
-cr.plugins_.cranberrygame_CordovaAdmob = function(runtime)
-{
-	this.runtime = runtime;
-	Type
-		onCreate
-	Instance
-		onCreate
-		draw
-		drawGL
-	cnds
-	acts
-	exps
-};
-*/
-cr.plugins_.cranberrygame_CordovaAdmob = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.cranberrygame_CordovaAdmob.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-/*
-	var fbAppID = "";
-	var fbAppSecret = "";
-*/
-	var bannerAdUnit = "";
-	var interstitialAdUnit = "";
-	var isOverlap = true;
-	var isTest = true;
-	var email = "";
-	var licenseKey = "";
-	typeProto.onCreate = function()
-	{
-/*
-		var newScriptTag=document.createElement('script');
-		newScriptTag.setAttribute("type","text/javascript");
-		newScriptTag.setAttribute("src", "mylib.js");
-		document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		var scripts=document.getElementsByTagName("script");
-		var scriptExist=false;
-		for(var i=0;i<scripts.length;i++){
-			if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-				scriptExist=true;
-				break;
-			}
-		}
-		if(!scriptExist){
-			var newScriptTag=document.createElement("script");
-			newScriptTag.setAttribute("type","text/javascript");
-			newScriptTag.setAttribute("src", "cordova.js");
-			document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		}
-*/
-		if(this.runtime.isBlackberry10 || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
-			var scripts=document.getElementsByTagName("script");
-			var scriptExist=false;
-			for(var i=0;i<scripts.length;i++){
-				if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-					scriptExist=true;
-					break;
-				}
-			}
-			if(!scriptExist){
-				var newScriptTag=document.createElement("script");
-				newScriptTag.setAttribute("type","text/javascript");
-				newScriptTag.setAttribute("src", "cordova.js");
-				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-			}
-		}
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-/*
-		var self=this;
-		window.addEventListener("resize", function () {//cranberrygame
-			self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.TriggerCondition, self);
-		});
-*/
-		if (!(this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-		if (this.runtime.isAndroid){
-			bannerAdUnit = this.properties[0];
-			interstitialAdUnit = this.properties[1];
-		}
-		else if (this.runtime.isiOS){
-			bannerAdUnit = this.properties[2];
-			interstitialAdUnit = this.properties[3];
-		}
-		else if (this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
-			bannerAdUnit = this.properties[4];
-			interstitialAdUnit = this.properties[5];
-		}
-		isOverlap = this.properties[6]==0?false:true;
-		isTest = this.properties[7]==0?false:true;
-		email = "cranberrygame@yahoo.com";
-		licenseKey = "5b4b290b7b56336df0c9837521822164";
-		var self = this;
-		if (typeof window["admob"] != 'undefined') {
-			setUpPlugin();
-		}
-		else {
-			setTimeout(setUpPlugin,600);
-		}
-		function setUpPlugin() {
-			window["admob"]["setLicenseKey"](email, licenseKey);
-			window["admob"]["setUp"](bannerAdUnit, interstitialAdUnit, isOverlap, isTest);
-			window["admob"]['onBannerAdPreloaded'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnBannerAdPreloaded, self);
-			};
-			window["admob"]['onBannerAdLoaded'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnBannerAdLoaded, self);
-			};
-			window["admob"]['onBannerAdShown'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnBannerAdShown, self);
-			};
-			window["admob"]['onBannerAdHidden'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnBannerAdHidden, self);
-			};
-			window["admob"]['onInterstitialAdPreloaded'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnInterstitialAdPreloaded, self);
-			};
-			window["admob"]['onInterstitialAdLoaded'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnInterstitialAdLoaded, self);
-			};
-			window["admob"]['onInterstitialAdShown'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnInterstitialAdShown, self);
-			};
-			window["admob"]['onInterstitialAdHidden'] = function() {
-				self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.OnInterstitialAdHidden, self);
-			};
-		}
-	};
-	instanceProto.draw = function(ctx)
-	{
-	};
-	instanceProto.drawGL = function (glw)
-	{
-	};
-/*
-	instanceProto.at = function (x)
-	{
-		return this.arr[x];
-	};
-	instanceProto.set = function (x, val)
-	{
-		this.arr[x] = val;
-	};
-*/
-	function Cnds() {};
-/*
-	Cnds.prototype.MyCondition = function (myparam)
-	{
-		return myparam >= 0;
-	};
-	Cnds.prototype.TriggerCondition = function ()
-	{
-		return true;
-	};
-*/
-	Cnds.prototype.OnBannerAdPreloaded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnBannerAdLoaded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnBannerAdShown = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnBannerAdHidden = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnInterstitialAdPreloaded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnInterstitialAdLoaded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnInterstitialAdShown = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnInterstitialAdHidden = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsShowingBannerAd = function ()
-	{
-	    if (typeof window["admob"] == 'undefined')
-			return false;
-		return window["admob"]["isShowingBannerAd"]();
-	};
-	Cnds.prototype.IsShowingInterstitialAd = function ()
-	{
-	    if (typeof window["admob"] == 'undefined')
-			return false;
-		return window["admob"]["isShowingInterstitialAd"]();
-	};
-	Cnds.prototype.LoadedBannerAd = function ()
-	{
-	    if (typeof window["admob"] == 'undefined')
-			return false;
-		return window["admob"]["loadedBannerAd"]();
-	};
-	Cnds.prototype.LoadedInterstitialAd = function ()
-	{
-	    if (typeof window["admob"] == 'undefined')
-			return false;
-		return window["admob"]["loadedInterstitialAd"]();
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-/*
-	Acts.prototype.MyAction = function (myparam)
-	{
-		alert(myparam);
-	};
-	Acts.prototype.TriggerAction = function ()
-	{
-		var self=this;
-		self.runtime.trigger(cr.plugins_.cranberrygame_CordovaAdmob.prototype.cnds.TriggerCondition, self);
-	};
-*/
-	Acts.prototype.PreloadBannerAd = function ()
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-        if (typeof window["admob"] == 'undefined')
-            return;
-		window["admob"]["preloadBannerAd"]();
-	}
-	Acts.prototype.ShowBannerAd = function (position, size)
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-        if (typeof window["admob"] == 'undefined')
-            return;
-		var positionStr = "top-center";
-		if (position==0)
-			positionStr = "top-left";
-		else if (position==1)
-			positionStr = "top-center";
-		else if (position==2)
-			positionStr = "top-right";
-		else if (position==3)
-			positionStr = "left";
-		else if (position==4)
-			positionStr = "center";
-		else if (position==5)
-			positionStr = "right";
-		else if (position==6)
-			positionStr = "bottom-left";
-		else if (position==7)
-			positionStr = "bottom-center";
-		else if (position==8)
-			positionStr = "bottom-right";
-		var sizeStr = "BANNER";
-		if (size==0)
-			sizeStr = "BANNER";
-		else if (size==1)
-			sizeStr = "LARGE_BANNER";
-		else if (size==2)
-			sizeStr = "MEDIUM_RECTANGLE";
-		else if (size==3)
-			sizeStr = "FULL_BANNER";
-		else if (size==4)
-			sizeStr = "LEADERBOARD";
-		else if (size==5)
-			sizeStr = "SKYSCRAPER";
-		else if (size==6)
-			sizeStr = "SMART_BANNER";
-		window["admob"]["showBannerAd"](positionStr, sizeStr);
-	};
-	Acts.prototype.ReloadBannerAd = function ()
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-        if (typeof window["admob"] == 'undefined')
-            return;
-		window["admob"]["reloadBannerAd"]();
-	}
-	Acts.prototype.HideBannerAd = function ()
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-        if (typeof window["admob"] == 'undefined')
-            return;
-		window["admob"]["hideBannerAd"]();
-	};
-	Acts.prototype.PreloadInterstitialAd = function ()
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-        if (typeof window["admob"] == 'undefined')
-            return;
-		window["admob"]["preloadInterstitialAd"]();
-	}
-	Acts.prototype.ShowInterstitialAd = function ()
-	{
-		if (!(this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81))
-			return;
-        if (typeof window["admob"] == 'undefined')
-            return;
-		window["admob"]["showInterstitialAd"]();
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-/*
-	Exps.prototype.MyExpression = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_int(1337);				// return our value
-	};
-	Exps.prototype.Text = function (ret, param) //cranberrygame
-	{
-		ret.set_string("Hello");		// for ef_return_string
-	};
-*/
-	pluginProto.exps = new Exps();
-}());
-;
-;
-/*
-cr.plugins_.cranberrygame_ShareApp = function(runtime)
-{
-	this.runtime = runtime;
-	Type
-		onCreate
-	Instance
-		onCreate
-		draw
-		drawGL
-	cnds
-	acts
-	exps
-};
-*/
-cr.plugins_.cranberrygame_ShareApp = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.cranberrygame_ShareApp.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-/*
-	var fbAppID = "";
-	var fbAppSecret = "";
-*/
-	var shareAppUrl = '';
-	typeProto.onCreate = function()
-	{
-/*
-		var newScriptTag=document.createElement('script');
-		newScriptTag.setAttribute("type","text/javascript");
-		newScriptTag.setAttribute("src", "mylib.js");
-		document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		var scripts=document.getElementsByTagName("script");
-		var scriptExist=false;
-		for(var i=0;i<scripts.length;i++){
-			if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-				scriptExist=true;
-				break;
-			}
-		}
-		if(!scriptExist){
-			var newScriptTag=document.createElement("script");
-			newScriptTag.setAttribute("type","text/javascript");
-			newScriptTag.setAttribute("src", "cordova.js");
-			document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-		}
-*/
-		if(this.runtime.isBlackberry10 || this.runtime.isWindows8App || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81){
-			var scripts=document.getElementsByTagName("script");
-			var scriptExist=false;
-			for(var i=0;i<scripts.length;i++){
-				if(scripts[i].src.indexOf("cordova.js")!=-1||scripts[i].src.indexOf("phonegap.js")!=-1){
-					scriptExist=true;
-					break;
-				}
-			}
-			if(!scriptExist){
-				var newScriptTag=document.createElement("script");
-				newScriptTag.setAttribute("type","text/javascript");
-				newScriptTag.setAttribute("src", "cordova.js");
-				document.getElementsByTagName("head")[0].appendChild(newScriptTag);
-			}
-		}
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-/*
-		var self=this;
-		window.addEventListener("resize", function () {//cranberrygame
-			self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.TriggerCondition, self);
-		});
-*/
-		shareAppUrl = '';
-		if (this.runtime.isAndroid) {
-			shareAppUrl = this.properties[1];
-		}
-		else if (this.runtime.isBlackberry10) {
-			shareAppUrl = this.properties[2];
-		}
-		else if (this.runtime.isiOS) {
-			shareAppUrl = this.properties[3];
-		}
-		else if (this.runtime.isWindows8App) {
-			shareAppUrl = this.properties[4];
-		}
-		else if (this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) {
-			shareAppUrl = this.properties[5];
-		}
-		else {
-			shareAppUrl = this.properties[0];
-		}
-		if(this.runtime.isCordova){
-			if(shareAppUrl.indexOf("?")==-1){
-				shareAppUrl += "?platform=cordova";
-			}
-			else{
-				shareAppUrl += "&platform=cordova";
-			}
-		}
-	};
-	instanceProto.draw = function(ctx)
-	{
-	};
-	instanceProto.drawGL = function (glw)
-	{
-	};
-/*
-	instanceProto.at = function (x)
-	{
-		return this.arr[x];
-	};
-	instanceProto.set = function (x, val)
-	{
-		this.arr[x] = val;
-	};
-*/
-	function Cnds() {};
-/*
-	Cnds.prototype.MyCondition = function (myparam)
-	{
-		return myparam >= 0;
-	};
-	Cnds.prototype.TriggerCondition = function ()
-	{
-		return true;
-	};
-*/
-	Cnds.prototype.OnShareAppSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaFacebookSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaFacebookFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaTwitterSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaTwitterFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaWhatsappSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaWhatsappFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaSMSSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaSMSFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaEmailSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaEmailFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaGooglePlusSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaGooglePlusFailed = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaLineSucceeded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.OnShareAppViaLineFailed = function ()
-	{
-		return true;
-	};
-	pluginProto.cnds = new Cnds();
-	function Acts() {};
-/*
-	Acts.prototype.MyAction = function (myparam)
-	{
-		alert(myparam);
-	};
-	Acts.prototype.TriggerAction = function ()
-	{
-		var self = this;
-		self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.TriggerCondition, self);
-	};
-*/
-	Acts.prototype.ShareApp = function (title, message)
-	{
-		if ((this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message;
-			if(tempMessage == '')
-				tempMessage = null;
-			var tempTitle = title;
-			if(tempTitle == '')
-				tempTitle = null;
-			var tempFile = null;
-			var tempShareAppUrl = shareAppUrl;
-			if(tempShareAppUrl == '')
-				tempShareAppUrl = null;
-			var self = this;
-			window["plugins"]["socialsharing"]["share"](tempMessage, tempTitle, tempFile, tempShareAppUrl,
-			function(result){
-				console.log(result);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppSucceeded, self);
-			},
-			function(error){
-				console.log(error);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppFailed, self);
-			});
-		}
-		else {
-		}
-	};
-	Acts.prototype.ShareAppViaFacebook = function (message)
-	{
-		if ((this.runtime.isiOS && typeof Ejecta != 'undefined')) {
-			var link = 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(shareAppUrl) + '&t=' + encodeURIComponent(message);
-			ejecta['openURL'](link);
-		}
-		else if ((this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message;
-			if(tempMessage == '')
-				tempMessage = null;
-			var tempFile = null;
-			var tempShareAppUrl = shareAppUrl;
-			if(tempShareAppUrl == '')
-				tempShareAppUrl = null;
-			var self = this;
-			window["plugins"]["socialsharing"]["shareViaFacebook"](tempMessage, tempFile, tempShareAppUrl,
-			function(result){
-				console.log(result);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaFacebookSucceeded, self);
-			},
-			function(error){
-				console.log(error);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaFacebookFailed, self);
-				var link = 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(shareAppUrl) + '&t=' + encodeURIComponent(message);
-				window.open(link, "_blank");
-			});
-		}
-		else if((this.runtime.isBlackberry10 || this.runtime.isWindows8App)){
-			var link = 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(shareAppUrl) + '&t=' + encodeURIComponent(message);
-			window.open(link, "_system");
-		}
-		else if(this.runtime.isNWjs){
-			var child_process = require("child_process");
-			var process = window["process"] || nw["process"];
-			var path = require("path");
-			var opener;
-			switch (process.platform) {
-			case "win32":
-				opener = 'start ""';
-				break;
-			case "darwin":
-				opener = 'open';
-				break;
-			default:
-				opener = path["join"](__dirname, "../vendor/xdg-open");
-				break;
-			}
-			var link = 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(shareAppUrl) + '&t=' + encodeURIComponent(message);
-			child_process["exec"](opener + ' "' + link.replace(/"/, '\\\"') + '"');
-		}
-		else {
-			var link = 'http://www.facebook.com/sharer.php?u=' + encodeURIComponent(shareAppUrl) + '&t=' + encodeURIComponent(message);
-			window.open(link, "_blank");
-		}
-	};
-	Acts.prototype.ShareAppViaTwitter = function (message)
-	{
-		if ((this.runtime.isiOS && typeof Ejecta != 'undefined')) {
-			var link = 'http://twitter.com/home/?status=' + encodeURIComponent(message + ' ' + shareAppUrl);
-			ejecta['openURL'](link);
-		}
-		else if ((this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message;
-			if(tempMessage == '')
-				tempMessage = null;
-			var tempFile = null;
-			var tempShareAppUrl = shareAppUrl;
-			if(tempShareAppUrl == '')
-				tempShareAppUrl = null;
-			if (this.runtime.isAndroid) {
-				var self = this;
-				window["plugins"]["socialsharing"]["shareViaTwitter"](tempMessage, tempFile, tempShareAppUrl,
-				function(result){
-					console.log(result);
-					self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaTwitterSucceeded, self);
-				},
-				function(error){
-					console.log(error);
-					self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaTwitterFailed, self);
-					var link = 'https://mobile.twitter.com/compose/tweet?status=' + encodeURIComponent(message + ' ' + shareAppUrl);
-					window.open(link, "_system");
-				});
-			}
-			else {
-				var self = this;
-				window["plugins"]["socialsharing"]["shareViaTwitter"](tempMessage, tempFile, tempShareAppUrl,
-				function(result){
-					console.log(result);
-					self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaTwitterSucceeded, self);
-				},
-				function(error){
-					console.log(error);
-					self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaTwitterFailed, self);
-					var link = 'https://mobile.twitter.com/compose/tweet?status=' + encodeURIComponent(message + ' ' + shareAppUrl);
-					window.open(link, "_blank");
-				});
-			}
-		}
-/*
-		if ((this.runtime.isBlackberry10))
-		{
-			var link = 'http://twitter.com/home/?status=' + encodeURIComponent(message + ' ' + shareAppUrl);
-			blackberry["invoke"]["invoke"]({
-				'target': "sys.browser",
-				'uri': link
-			}, function(result){}, function(error){});
-		}
-*/
-		else if((this.runtime.isBlackberry10 || this.runtime.isWindows8App)){
-			var link = 'http://twitter.com/home/?status=' + encodeURIComponent(message + ' ' + shareAppUrl);
-			window.open(link, "_system");
-		}
-		else if(this.runtime.isNWjs){
-			var child_process = require("child_process");
-			var process = window["process"] || nw["process"];
-			var path = require("path");
-			var opener;
-			switch (process.platform) {
-			case "win32":
-				opener = 'start ""';
-				break;
-			case "darwin":
-				opener = 'open';
-				break;
-			default:
-				opener = path["join"](__dirname, "../vendor/xdg-open");
-				break;
-			}
-			var link = 'http://twitter.com/home/?status=' + encodeURIComponent(message + ' ' + shareAppUrl);
-			child_process["exec"](opener + ' "' + link.replace(/"/, '\\\"') + '"');
-		}
-		else {
-			var link = 'http://twitter.com/home/?status=' + encodeURIComponent(message + ' ' + shareAppUrl);
-			window.open(link, "_blank");
-		}
-	};
-	Acts.prototype.ShareAppViaWhatsapp = function (message)
-	{
-		if ((this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message;
-			if(tempMessage == '')
-				tempMessage = null;
-			var tempFile = null;
-			var tempShareAppUrl = shareAppUrl;
-			if(tempShareAppUrl == '')
-				tempShareAppUrl = null;
-			var self = this;
-			window["plugins"]["socialsharing"]["shareViaWhatsApp"](tempMessage, tempFile, tempShareAppUrl,
-			function(result){
-				console.log(result);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaWhatsappSucceeded, self);
-			},
-			function(error){
-				console.log(error);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaWhatsappFailed, self);
-			});
-		}
-		else {
-		}
-	};
-	Acts.prototype.ShareAppViaSMS = function (message)
-	{
-		if ((this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message + ' ' + shareAppUrl;
-			if(tempMessage == '')
-				tempMessage = null;
-			var self = this;
-			window["plugins"]["socialsharing"]["shareViaSMS"](tempMessage, null,
-			function(result){
-				console.log(result);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaSMSSucceeded, self);
-			},
-			function(error){
-				console.log(error);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaSMSFailed, self);
-			});
-		}
-		else {
-		}
-	};
-	Acts.prototype.ShareAppViaEmail = function (title, message)
-	{
-		if ((this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message + ' ' + shareAppUrl;
-			if(tempMessage == '')
-				tempMessage = null;
-			var tempTitle = title;
-			if(tempTitle == '')
-				tempTitle = null;
-			var tempFiles = null;
-			var self = this;
-			window["plugins"]["socialsharing"]["shareViaEmail"](tempMessage, tempTitle, null, null, null, tempFiles,
-			function(result){
-				console.log(result);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaEmailSucceeded, self);
-			},
-			function(error){
-				console.log(error);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaEmailFailed, self);
-			});
-		}
-		else {
-		}
-	};
-	Acts.prototype.ShareAppViaGooglePlus = function (message)
-	{
-		if ((this.runtime.isiOS && typeof Ejecta != 'undefined')) {
-			var link = 'https://plus.google.com/share?url=' + encodeURIComponent(link);
-			ejecta['openURL'](link);
-		}
-		else if ((this.runtime.isAndroid) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message;
-			if(tempMessage == '')
-				tempMessage = null;
-			var tempTitle = null;
-			var tempFile = null;
-			var tempShareAppUrl = shareAppUrl;
-			if(tempShareAppUrl == '')
-				tempShareAppUrl = null;
-			var self = this;
-			window["plugins"]["socialsharing"]["shareVia"]('com.google.android.apps.plus', tempMessage, tempTitle, tempFile, tempShareAppUrl,
-			function(result){
-				console.log(result);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaGooglePlusSucceeded, self);
-			},
-			function(error){
-				console.log(error);
-				self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaGooglePlusFailed, self);
-				var link = 'https://plus.google.com/share?url=' + encodeURIComponent(shareAppUrl);
-				window.open(link, "_blank");
-			});
-		}
-		else if((this.runtime.isBlackberry10 || this.runtime.isWindows8App)){
-			var link = 'https://plus.google.com/share?url=' + encodeURIComponent(shareAppUrl);
-			window.open(link, "_system");
-		}
-		else if(this.runtime.isNWjs){
-			var child_process = require("child_process");
-			var process = window["process"] || nw["process"];
-			var path = require("path");
-			var opener;
-			switch (process.platform) {
-			case "win32":
-				opener = 'start ""';
-				break;
-			case "darwin":
-				opener = 'open';
-				break;
-			default:
-				opener = path["join"](__dirname, "../vendor/xdg-open");
-				break;
-			}
-			var link = 'https://plus.google.com/share?url=' + encodeURIComponent(shareAppUrl);
-			child_process["exec"](opener + ' "' + link.replace(/"/, '\\\"') + '"');
-		}
-		else {
-			var link = 'https://plus.google.com/share?url=' + encodeURIComponent(shareAppUrl);
-			window.open(link, "_blank");
-		}
-	};
-	Acts.prototype.ShareAppViaLine = function (message)
-	{
-		if ((this.runtime.isAndroid || this.runtime.isiOS || this.runtime.isWindowsPhone8 || this.runtime.isWindowsPhone81) && !this.runtime.isAmazonWebApp) {
-			if (typeof window["plugins"] == 'undefined' || typeof window["plugins"]["socialsharing"] == 'undefined')
-				return;
-			var tempMessage = message;
-			if(tempMessage == '')
-				tempMessage = null;
-			var tempTitle = null;
-			var tempFile = null;
-			var tempShareAppUrl = shareAppUrl;
-			if(tempShareAppUrl == '')
-				tempShareAppUrl = null;
-			if (this.runtime.isAndroid) {
-				var self = this;
-				window["plugins"]["socialsharing"]["shareVia"]('jp.naver.line.android', tempMessage, tempTitle, tempFile, tempShareAppUrl,
-				function(result){
-					console.log(result);
-					self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaLineSucceeded, self);
-				},
-				function(error){
-					console.log(error);
-					self.runtime.trigger(cr.plugins_.cranberrygame_ShareApp.prototype.cnds.OnShareAppViaLineFailed, self);
-				});
-			}
-		}
-		else {
-		}
-	};
-	pluginProto.acts = new Acts();
-	function Exps() {};
-/*
-	Exps.prototype.MyExpression = function (ret)	// 'ret' must always be the first parameter - always return the expression's result through it!
-	{
-		ret.set_int(1337);				// return our value
-	};
-	Exps.prototype.Text = function (ret, param) //cranberrygame
-	{
-		ret.set_string("Hello");		// for ef_return_string
-	};
-*/
-	pluginProto.exps = new Exps();
-}());
-;
-;
 cr.behaviors.Anchor = function(runtime)
 {
 	this.runtime = runtime;
@@ -26442,13 +26005,12 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Browser,
 	cr.plugins_.Function,
 	cr.plugins_.Particles,
-	cr.plugins_.cranberrygame_CordovaAdmob,
 	cr.plugins_.Rex_WebstorageExt,
 	cr.plugins_.Spritefont2,
 	cr.plugins_.Sprite,
 	cr.plugins_.TiledBg,
 	cr.plugins_.Touch,
-	cr.plugins_.cranberrygame_ShareApp,
+	cr.plugins_.EnhanceIncConstructPlugin,
 	cr.behaviors.Rotate,
 	cr.behaviors.Turret,
 	cr.behaviors.Bullet,
@@ -26457,7 +26019,6 @@ cr.getObjectRefTable = function () { return [
 	cr.behaviors.Anchor,
 	cr.behaviors.MessageBox,
 	cr.system_object.prototype.cnds.OnLayoutStart,
-	cr.plugins_.cranberrygame_CordovaAdmob.prototype.acts.PreloadInterstitialAd,
 	cr.behaviors.Pin.prototype.acts.Pin,
 	cr.system_object.prototype.acts.SetVar,
 	cr.system_object.prototype.exps["int"],
@@ -26465,7 +26026,7 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Sprite.prototype.acts.Destroy,
 	cr.system_object.prototype.acts.SetLayerBackground,
 	cr.system_object.prototype.exps.rgb,
-	cr.plugins_.cranberrygame_CordovaAdmob.prototype.acts.ShowBannerAd,
+	cr.plugins_.EnhanceIncConstructPlugin.prototype.acts.showBannerAd,
 	cr.plugins_.Touch.prototype.cnds.OnTouchEnd,
 	cr.system_object.prototype.cnds.CompareVar,
 	cr.plugins_.Touch.prototype.cnds.IsTouchingObject,
@@ -26488,7 +26049,7 @@ cr.getObjectRefTable = function () { return [
 	cr.system_object.prototype.acts.RestartLayout,
 	cr.system_object.prototype.acts.GoToLayout,
 	cr.system_object.prototype.acts.GoToLayoutByName,
-	cr.plugins_.cranberrygame_CordovaAdmob.prototype.acts.ShowInterstitialAd,
+	cr.plugins_.EnhanceIncConstructPlugin.prototype.acts.showInterstitialAd,
 	cr.plugins_.Function.prototype.cnds.OnFunction,
 	cr.system_object.prototype.cnds.IsGroupActive,
 	cr.plugins_.Touch.prototype.cnds.OnTapGestureObject,
